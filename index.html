@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Patel Brothers AI WhatsApp Demo</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#111}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.phone{width:min(390px,100vw);height:min(844px,100vh);background:#efeae2;position:relative;overflow:hidden;box-shadow:0 0 0 8px #222,0 20px 60px #0008}
+.top{height:72px;background:#075e54;color:white;display:flex;align-items:center;padding:8px 12px;gap:10px}
+.back{font-size:28px}.avatar{width:46px;height:46px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:23px}
+.identity{flex:1}.name{font-weight:700;font-size:17px}.status{font-size:12px;margin-top:3px}.actions{display:flex;gap:17px;font-size:22px}
+.chat{height:calc(100% - 128px);overflow-y:auto;padding:14px 10px;background:#efeae2;background-image:radial-gradient(#00000009 1px,transparent 1px);background-size:16px 16px}
+.day{width:max-content;margin:3px auto 12px;background:#d9fdd3;color:#54656f;font-size:11px;padding:6px 10px;border-radius:8px}
+.msg{max-width:82%;padding:7px 9px 5px;margin:5px 0;border-radius:8px;font-size:14.5px;line-height:1.35;box-shadow:0 1px 1px #0002;word-wrap:break-word;color:#111!important}
+.bot{float:left;background:white;border-top-left-radius:2px}.user{float:right;background:#d9fdd3;border-top-right-radius:2px}
+.time{font-size:10px;color:#667781;float:right;margin:4px 0 0 8px}.checks{color:#53bdeb;margin-left:3px}.clearfix{clear:both}
+.typing{display:none;float:left;background:white;padding:8px 12px;border-radius:8px;color:#667781;font-size:13px;margin:5px 0}
+.composer{height:56px;background:#f0f2f5;display:flex;align-items:center;gap:8px;padding:7px 8px;position:absolute;bottom:0;left:0;right:0}
+.emoji,.attach{font-size:22px;color:#54656f}.input{flex:1;background:white;border:0;outline:0;border-radius:22px;padding:11px 14px;font-size:15px;color:#111!important}
+.send{width:42px;height:42px;border:0;border-radius:50%;background:#128c7e;color:white;font-size:19px;cursor:pointer}
+@media(max-height:650px){.phone{height:100vh;box-shadow:none}.top{height:62px}.chat{height:calc(100% - 118px)}}
+</style>
+</head>
+<body>
+<div class="phone">
+<header class="top"><div class="back">‹</div><div class="avatar">🛒</div>
+<div class="identity"><div class="name">Patel Brothers AI</div><div class="status">online • customer care</div></div>
+<div class="actions"><span>⌕</span><span>⋮</span></div></header>
+<main id="chat" class="chat"><div class="day">TODAY</div>
+<div class="msg bot">Namaste! 🙏 Welcome to Patel Brothers.<br><br>I'm your AI Customer Assistant. I can help with stores, deals, products, membership, pickup orders, and more.<span class="time">6:30 PM</span></div>
+<div class="clearfix"></div><div id="typing" class="typing">Patel Brothers AI&nbsp; • • •</div><div class="clearfix"></div></main>
+<div class="composer"><div class="emoji">☺</div><input id="input" class="input" autocomplete="off" placeholder="Type a message"><div class="attach">＋</div><button id="send" class="send">➤</button></div>
+</div>
+<script>
+/* After you copy the Chat Trigger production URL, put it here. */
+const N8N_WEBHOOK_URL = "https://kills-asus-definition-asn.trycloudflare.com/webhook/patel-chat";
+const chat=document.getElementById("chat"),input=document.getElementById("input"),send=document.getElementById("send"),typing=document.getElementById("typing");
+let sessionId=localStorage.getItem("pb_session_id")||("web-"+crypto.randomUUID());localStorage.setItem("pb_session_id",sessionId);
+function now(){return new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function add(text,who){let d=document.createElement("div");d.className="msg "+who;d.innerHTML=esc(text).replace(/\n/g,"<br>")+'<span class="time">'+now()+(who==="user"?'<span class="checks">✓✓</span>':"")+"</span>";chat.insertBefore(d,typing);let c=document.createElement("div");c.className="clearfix";chat.insertBefore(c,typing);chat.scrollTop=chat.scrollHeight}
+function busy(x){typing.style.display=x?"block":"none";chat.scrollTop=chat.scrollHeight}
+async function sendMsg(){let text=input.value.trim();if(!text)return;input.value="";add(text,"user");busy(true);
+try{let reply;if(N8N_WEBHOOK_URL){let r=await fetch(N8N_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"sendMessage",sessionId,chatInput:text})});if(!r.ok)throw Error("HTTP "+r.status);let d=await r.json();reply=d.output??d.text??d.response??d.message??"I received your message."}
+else{await new Promise(r=>setTimeout(r,650));let t=text.toLowerCase();if(t.includes("deal")||t.includes("offer"))reply="Sure! I can check the latest Patel Brothers deals for you. In the connected version, this is answered from the Deals Google Sheet.";else if(t.includes("rice")||t.includes("product"))reply="I can check product price and availability from the Patel Brothers catalog. Try asking for a product name.";else if(t.includes("store")||t.includes("location"))reply="I can find the nearest Patel Brothers store and provide its address, hours, and phone number.";else reply="Namaste! 🙏 How can I help you today?\n\nTry: “What deals are available?” or “Do you have India Gate Basmati Rice?”"}busy(false);add(String(reply),"bot")}catch(e){busy(false);add("Sorry, I couldn't connect to the Patel Brothers assistant right now. Please try again.","bot");console.error(e)}}
+send.onclick=sendMsg;input.onkeydown=e=>{if(e.key==="Enter")sendMsg()};
+</script>
+</body></html>
