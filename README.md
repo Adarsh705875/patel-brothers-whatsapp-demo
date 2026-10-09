@@ -20,9 +20,8 @@
 
 ## 📸 Preview
 
-Screenshot 2026-10-09 130408.png
 
-*Add a screenshot or GIF of the chat here.*
+
 
 ---
 
