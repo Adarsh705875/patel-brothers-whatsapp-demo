@@ -20,8 +20,7 @@
 
 ## 📸 Preview
 
-<!-- Replace with your own screenshot or GIF: upload it to the repo and use the path below -->
-<!-- ![Chat demo](./screenshots/demo.gif) -->
+Screenshot 2026-10-09 130408.png
 
 *Add a screenshot or GIF of the chat here.*
 
